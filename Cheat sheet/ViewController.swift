@@ -74,8 +74,7 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
         }
     }
     
-    
-    func createObjectDetectionVisionRequest() -> VNRequest? {
+    private func createObjectDetectionVisionRequest() -> VNRequest? {
         
         let visionTextRecognitionRequest = VNRecognizeTextRequest { [weak self] request, error in
             guard
@@ -96,8 +95,7 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
             }
             
             DispatchQueue.main.async {
-//                self?.processVisionRequestResults(observations)
-                self?.drawBoundingBoxes(observations: observations)
+                self?.processVisionRequestResults(observations)
                 self?.label.text = text
             }
         }
@@ -105,27 +103,6 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
         visionTextRecognitionRequest.preferBackgroundProcessing = true
         visionTextRecognitionRequest.usesLanguageCorrection = true
         return visionTextRecognitionRequest
-    }
-    
-    private func drawBoundingBoxes(observations: [VNRecognizedTextObservation]) {
-        
-        let boundingRects: [CGRect] = observations.compactMap { observation in
-
-            // Find the top observation.
-            guard let candidate = observation.topCandidates(1).first else { return .zero }
-            
-            // Find the bounding-box observation for the string range.
-            let stringRange = candidate.string.startIndex..<candidate.string.endIndex
-            let boxObservation = try? candidate.boundingBox(for: stringRange)
-            
-            // Get the normalized CGRect value.
-            let boundingBox = boxObservation?.boundingBox ?? .zero
-            
-            // Convert the rectangle from normalized coordinates to image coordinates.
-            return VNImageRectForNormalizedRect(boundingBox,
-                                                Int(objectDetectionLayer.bounds.width),
-                                                Int(objectDetectionLayer.bounds.height))
-        }
     }
     
     private func processVisionRequestResults(_ results: [Any]) {
