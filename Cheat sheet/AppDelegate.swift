@@ -1,10 +1,3 @@
-//
-//  AppDelegate.swift
-//  Cheat sheet
-//
-//  Created by Admin on 30.01.2022.
-//
-
 import UIKit
 
 @main
