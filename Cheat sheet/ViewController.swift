@@ -9,25 +9,67 @@ protocol UserView {
 final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     var previewLayer = AVCaptureVideoPreviewLayer()
-    var objectDetectionLayer = CALayer()
+    var captureSession = AVCaptureSession()
+    var observationText = "" {
+        didSet {
+            if !observationText.isEmpty {
+                counter += 1
+                DispatchQueue.main.async { [weak self] in
+                    if !(self?.loadingIndicator.isAnimating)! {
+                        self?.loadingIndicator.startAnimating()
+                    }
+                }
+            }
+        }
+    }
     var visionRequests = [VNRequest]()
+    var counter = 0 {
+        didSet {
+            DispatchQueue.main.async { [weak self] in
+                guard
+                    let counter = self?.counter else { return }
+                self?.scoreLabel.text = "\(counter*5) %"
+            }
+        }
+    }
     
-    private let label: UILabel = {
+    private let scoreLabel: UILabel = {
         let lbl = UILabel()
-        lbl.numberOfLines = 0
+        lbl.numberOfLines = 1
+        lbl.font = .systemFont(ofSize: 80, weight: .bold)
+        lbl.backgroundColor = .clear
+        lbl.textColor = .white.withAlphaComponent(0.5)
         lbl.textAlignment = .center
-        lbl.translatesAutoresizingMaskIntoConstraints = false
-        lbl.backgroundColor = .systemBlue
-        lbl.text = "Starting..."
         return lbl
+    }()
+    
+    private let visionTextRecognitionRequest: VNRecognizeTextRequest = {
+        let request = VNRecognizeTextRequest()
+        request.preferBackgroundProcessing = true
+        request.recognitionLevel = .accurate
+        request.usesLanguageCorrection = true
+        request.usesCPUOnly = false
+        return request
+    }()
+    
+    private let loadingIndicator: UIActivityIndicatorView = {
+        let loading = UIActivityIndicatorView(style: .large)
+        loading.hidesWhenStopped = true
+        loading.tintColor = .white
+        return loading
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemRed
         startCaptureSession(createObjectDetectionVisionRequest())
-        setupObjectDetectionLayer(previewLayer, previewLayer.frame.size)
-        view.addSubview(label)
+        view.addSubview(loadingIndicator)
+        view.addSubview(scoreLabel)
+    }
+    
+    private func endDetecting() {
+        loadingIndicator.stopAnimating()
+        captureSession.stopRunning()
     }
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
@@ -49,7 +91,6 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
     
     private func startCaptureSession(_ visionRequest: VNRequest?) {
         
-        let captureSession = AVCaptureSession()
         captureSession.sessionPreset = .photo
         guard
             let captureDevice = AVCaptureDevice.default(for: .video),
@@ -79,11 +120,11 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
         let visionTextRecognitionRequest = VNRecognizeTextRequest { [weak self] request, error in
             guard
                 let observations = request.results as? [VNRecognizedTextObservation] else { return }
-                        
-            let text = observations.compactMap({
-                $0.topCandidates(1).first?.string
-            }).joined(separator: ", ")
             
+            self?.observationText = observations.compactMap({
+                $0.topCandidates(1).first?.string
+            }).joined(separator: " ")
+
             guard
                 let unwrappedRequests = self?.visionRequests else { return }
             
@@ -94,99 +135,41 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
                 self?.visionRequests.append(request)
             }
             
-            DispatchQueue.main.async {
-                self?.processVisionRequestResults(observations)
-                self?.label.text = text
+            if self?.counter == 20 {
+                self?.presentTextVC()
             }
+            
         }
-        print(visionTextRecognitionRequest.recognitionLanguages)
-        visionTextRecognitionRequest.preferBackgroundProcessing = true
-        visionTextRecognitionRequest.usesLanguageCorrection = true
         return visionTextRecognitionRequest
     }
     
-    private func processVisionRequestResults(_ results: [Any]) {
-        CATransaction.begin()
-        CATransaction.setValue(kCFBooleanTrue, forKey: kCATransactionDisableActions)
-        
-        self.objectDetectionLayer.sublayers = nil
-        for observation in results where observation is VNRecognizedObjectObservation {
-            guard let objectObservation = observation as? VNRecognizedObjectObservation else {
-                continue
-            }
-            let topLabelObservation = objectObservation.labels[0]
-            let objectBounds = VNImageRectForNormalizedRect(
-                objectObservation.boundingBox,
-                Int(self.objectDetectionLayer.bounds.width), Int(self.objectDetectionLayer.bounds.height))
-            
-            let bbLayer = self.createBoundingBoxLayer(objectBounds, identifier: topLabelObservation.identifier, confidence: topLabelObservation.confidence)
-            self.objectDetectionLayer.addSublayer(bbLayer)
+    func presentTextVC() {
+        DispatchQueue.main.async { [weak self] in
+            let textVC = TextViewController()
+            self?.endDetecting()
+            textVC.textToTranslate.text = self?.observationText
+            self?.navigationController?.pushViewController(textVC, animated: true)
+            self?.counter = 0
         }
-        CATransaction.commit()
     }
     
-    private func setupObjectDetectionLayer(_ viewLayer: CALayer, _ videoFrameSize: CGSize) {
-        self.objectDetectionLayer = CALayer()
-        self.objectDetectionLayer.name = "ObjectDetectionLayer"
-        self.objectDetectionLayer.bounds = CGRect(x: 0.0,
-                                                  y: 0.0,
-                                                  width: videoFrameSize.width,
-                                                  height: videoFrameSize.height)
-        self.objectDetectionLayer.position = CGPoint(x: viewLayer.bounds.midX, y: viewLayer.bounds.midY)
-        
-        viewLayer.addSublayer(self.objectDetectionLayer)
-        
-        let bounds = viewLayer.bounds
-        
-        let scale = fmax(bounds.size.width  / videoFrameSize.width, bounds.size.height / videoFrameSize.height)
-        
-        CATransaction.begin()
-        CATransaction.setValue(kCFBooleanTrue, forKey: kCATransactionDisableActions)
-        
-        self.objectDetectionLayer.setAffineTransform(CGAffineTransform(scaleX: scale, y: -scale))
-        self.objectDetectionLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
-        CATransaction.commit()
-    }
-    
-    private func createBoundingBoxLayer(_ bounds: CGRect, identifier: String, confidence: VNConfidence) -> CALayer {
-        let path = UIBezierPath(rect: bounds)
-        
-        let boxLayer = CAShapeLayer()
-        boxLayer.path = path.cgPath
-        boxLayer.strokeColor = UIColor.red.cgColor
-        boxLayer.lineWidth = 2
-        boxLayer.fillColor = CGColor(colorSpace: CGColorSpaceCreateDeviceRGB(), components: [0.0, 0.0, 0.0, 0.0])
-        
-        boxLayer.bounds = bounds
-        boxLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
-        boxLayer.name = "Detected Object Box"
-        boxLayer.backgroundColor = CGColor(colorSpace: CGColorSpaceCreateDeviceRGB(), components: [0.5, 0.5, 0.2, 0.3])
-        boxLayer.cornerRadius = 6
-        
-        let textLayer = CATextLayer()
-        textLayer.name = "Detected Object Label"
-        
-        textLayer.string = String(format: "\(identifier)\n(%.2f)", confidence)
-        textLayer.fontSize = CGFloat(16.0)
-        
-        textLayer.bounds = CGRect(x: 0, y: 0, width: bounds.size.width - 10, height: bounds.size.height - 10)
-        textLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
-        textLayer.alignmentMode = .center
-        textLayer.foregroundColor =  UIColor.red.cgColor
-        textLayer.contentsScale = 2.0
-        
-        textLayer.setAffineTransform(CGAffineTransform(scaleX: 1.0, y: -1.0))
-        
-        boxLayer.addSublayer(textLayer)
-        return boxLayer
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        DispatchQueue.main.async { [weak self] in
+            self?.counter = 0
+            self?.captureSession.startRunning()
+            self?.loadingIndicator.stopAnimating()
+        }
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        label.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20).isActive = true
-        label.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20).isActive = true
-        label.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50).isActive = true
-        label.heightAnchor.constraint(equalToConstant: 100).isActive = true
+        loadingIndicator.center = view.center
+        let inset: CGFloat = 50
+        scoreLabel.frame = CGRect(x: view.safeAreaInsets.left + inset,
+                                  y: view.bounds.height - inset*2 - view.safeAreaInsets.bottom,
+                                  width: view.bounds.width - inset*2,
+                                  height: inset*2)
     }
 }
 
