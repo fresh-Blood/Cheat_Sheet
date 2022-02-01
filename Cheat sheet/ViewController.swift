@@ -55,7 +55,7 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
     private let loadingIndicator: UIActivityIndicatorView = {
         let loading = UIActivityIndicatorView(style: .large)
         loading.hidesWhenStopped = true
-        loading.tintColor = .white
+        loading.color = .white
         return loading
     }()
     
@@ -65,6 +65,19 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
         startCaptureSession(createObjectDetectionVisionRequest())
         view.addSubview(loadingIndicator)
         view.addSubview(scoreLabel)
+        configurateNavBar()
+    }
+    private func configurateNavBar() {
+        navigationItem.title = "Focus,don't move ಠ_ಠ"
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.backButtonTitle = ""
+        navigationController?.navigationBar.largeTitleTextAttributes = [
+            .font: UIFont.systemFont(ofSize: 30,
+                                     weight: .heavy),
+            .foregroundColor: UIColor.label
+        ]
+        navigationController?.navigationBar.backgroundColor = .clear
+        navigationController?.navigationBar.tintColor = .white
     }
     
     private func endDetecting() {
