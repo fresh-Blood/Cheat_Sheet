@@ -5,51 +5,16 @@ protocol UserText {
     
 }
 
-final class TextViewController: UIViewController, UserText {
+final class TextViewController: UIViewController, UserText, UITextViewDelegate {
     
-    var languagesToChooseForPickerView: [String] = [NLLanguage.russian.rawValue]
-
-    private let loadingIndicator: UIActivityIndicatorView = {
-        let loading = UIActivityIndicatorView(style: .large)
-        loading.color = .white
-        loading.hidesWhenStopped = true
-        return loading
-    }()
-    
-    private let placeholderLabel: UILabel = {
-        let lbl = UILabel()
-        lbl.numberOfLines = 0
-        lbl.adjustsFontSizeToFitWidth = true
-        lbl.backgroundColor = .clear
-        lbl.textColor = .label
-        lbl.font = .systemFont(ofSize: 30, weight: .bold)
-        lbl.text = "Translate to:"
-        return lbl
-    }()
-    
-    let textToTranslate: UILabel = {
-        let lbl = UILabel()
-        lbl.numberOfLines = 0
-        lbl.adjustsFontSizeToFitWidth = true
-        lbl.backgroundColor = .systemGray6
-        lbl.textColor = .label
-        lbl.font = .systemFont(ofSize: 50, weight: .bold)
-        return lbl
-    }()
-    
-    private let picker: UIPickerView = {
-        let picker = UIPickerView()
-        picker.backgroundColor = .systemGray6
-        return picker
-    }()
-    
-    let goButton: UIButton = {
-        let btn = UIButton()
-        btn.setTitle("Go!", for: .normal)
-        btn.backgroundColor = .random()
-        btn.setTitleColor(UIColor.label, for: .normal)
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        return btn
+    let textToTranslate: UITextView = {
+        let text = UITextView()
+        text.backgroundColor = .systemGray6
+        text.textColor = .label
+        text.font = .systemFont(ofSize: 20, weight: .bold)
+        text.translatesAutoresizingMaskIntoConstraints = false
+        text.layer.cornerRadius = 8 
+        return text
     }()
     
     private func recognizeCheckAndCorrectLanguage() {
@@ -84,9 +49,6 @@ final class TextViewController: UIViewController, UserText {
                 offset = wordRange.upperBound
                 textToTranslate.text = labelText.replacingOccurrences(of: wordWithError, with: quessRightWord)
             } while true
-            DispatchQueue.main.async { [weak self] in
-                self?.loadingIndicator.stopAnimating()
-            }
         }
     }
     
@@ -95,42 +57,31 @@ final class TextViewController: UIViewController, UserText {
         view.backgroundColor = .random()
         view.addSubview(textToTranslate)
         self.title = "I recognized this (ಠ‿ಠ):"
-        view.addSubview(loadingIndicator)
-        view.addSubview(placeholderLabel)
-        loadingIndicator.startAnimating()
-        picker.delegate = self
-        picker.dataSource = self
-        view.addSubview(picker)
-        view.addSubview(goButton)
-        setGoButtonGesturePolitics()
+        textToTranslate.delegate = self
+        setTextViewConstraints()
     }
+    
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if text == "\n" {
+            textView.resignFirstResponder()
+            return false
+        }
+        return true
+    }
+    
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         recognizeCheckAndCorrectLanguage()
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        let inset: CGFloat = 20
-        textToTranslate.frame = CGRect(x: view.safeAreaInsets.left + inset,
-                                       y: view.safeAreaInsets.top,
-                                       width: view.frame.width - inset*2,
-                                       height: view.frame.height/2)
-        loadingIndicator.center = view.center
-        placeholderLabel.frame = CGRect(x: view.safeAreaInsets.left + inset,
-                                        y: view.safeAreaInsets.top + textToTranslate.frame.height + inset,
-                                        width: view.frame.width/2 - inset,
-                                        height: 50)
-        picker.frame = CGRect(x: view.safeAreaInsets.left + inset + placeholderLabel.frame.width,
-                              y: view.safeAreaInsets.top + textToTranslate.frame.height + inset,
-                              width: view.frame.width/2 - inset,
-                              height: 50)
-        goButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100).isActive = true
-        goButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        goButton.heightAnchor.constraint(equalToConstant: 100).isActive = true
-        goButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        goButton.layer.cornerRadius = goButton.frame.height/2
+    private func setTextViewConstraints() {
+        NSLayoutConstraint.activate([
+            textToTranslate.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
+            textToTranslate.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20),
+            textToTranslate.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20),
+            textToTranslate.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20),
+        ])
     }
 }
 
@@ -145,16 +96,4 @@ extension UIColor {
     }
 }
 
-extension TextViewController: UIPickerViewDelegate, UIPickerViewDataSource {
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return languagesToChooseForPickerView.count
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return languagesToChooseForPickerView[row]
-    }
-}
+

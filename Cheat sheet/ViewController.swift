@@ -43,7 +43,7 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
         return lbl
     }()
     
-    private let visionTextRecognitionRequest: VNRecognizeTextRequest = {
+    private var visionTextRecognitionRequest: VNRecognizeTextRequest = {
         let request = VNRecognizeTextRequest()
         request.preferBackgroundProcessing = true
         request.recognitionLevel = .accurate
@@ -61,23 +61,24 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemRed
+        configurateNavBar()
+        view.backgroundColor = .random()
         startCaptureSession(createObjectDetectionVisionRequest())
         view.addSubview(loadingIndicator)
         view.addSubview(scoreLabel)
-        configurateNavBar()
     }
     private func configurateNavBar() {
-        navigationItem.title = "Focus,don't move ಠ_ಠ"
+        navigationItem.title = "Focus on text,don't move ಠ_ಠ"
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.backButtonTitle = ""
         navigationController?.navigationBar.largeTitleTextAttributes = [
-            .font: UIFont.systemFont(ofSize: 30,
-                                     weight: .heavy),
+            .font: UIFont.systemFont(ofSize: 25,
+                                     weight: .bold),
             .foregroundColor: UIColor.label
         ]
         navigationController?.navigationBar.backgroundColor = .clear
         navigationController?.navigationBar.tintColor = .white
+        navigationController?.navigationBar.isTranslucent = false
     }
     
     private func endDetecting() {
@@ -114,8 +115,15 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
         captureSession.startRunning()
         
         previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+        previewLayer.frame = CGRect(x: view.safeAreaInsets.left + 20,
+                                    y: view.safeAreaInsets.top + 20,
+                                    width: view.bounds.width - 40,
+                                    height: 300)
+        previewLayer.cornerRadius = 8
+        previewLayer.borderColor = UIColor.black.cgColor
+        previewLayer.borderWidth = 1.0
         view.layer.addSublayer(previewLayer)
-        previewLayer.frame = view.bounds
+        
         let dataOutput = AVCaptureVideoDataOutput()
         dataOutput.alwaysDiscardsLateVideoFrames = true
         dataOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "queue"))
@@ -130,14 +138,14 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
     
     private func createObjectDetectionVisionRequest() -> VNRequest? {
         
-        let visionTextRecognitionRequest = VNRecognizeTextRequest { [weak self] request, error in
+        visionTextRecognitionRequest = VNRecognizeTextRequest { [weak self] request, error in
             guard
                 let observations = request.results as? [VNRecognizedTextObservation] else { return }
             
             self?.observationText = observations.compactMap({
                 $0.topCandidates(1).first?.string
             }).joined(separator: " ")
-
+            
             guard
                 let unwrappedRequests = self?.visionRequests else { return }
             

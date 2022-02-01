@@ -14,8 +14,6 @@
 		8470739127A71FAF0066D224 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8470738F27A71FAF0066D224 /* LaunchScreen.storyboard */; };
 		8470739927A71FFF0066D224 /* Assembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8470739827A71FFF0066D224 /* Assembly.swift */; };
 		B5BC376227A8661C00FA6024 /* TextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BC376127A8661C00FA6024 /* TextViewController.swift */; };
-		B5C113D427A9110B00BB3632 /* CustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C113D327A9110B00BB3632 /* CustomCell.swift */; };
-		B5C113D627A919BE00BB3632 /* GesturePolitics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C113D527A919BE00BB3632 /* GesturePolitics.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,8 +26,6 @@
 		8470739227A71FAF0066D224 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8470739827A71FFF0066D224 /* Assembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assembly.swift; sourceTree = "<group>"; };
 		B5BC376127A8661C00FA6024 /* TextViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewController.swift; sourceTree = "<group>"; };
-		B5C113D327A9110B00BB3632 /* CustomCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCell.swift; sourceTree = "<group>"; };
-		B5C113D527A919BE00BB3632 /* GesturePolitics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturePolitics.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,8 +62,6 @@
 				8470738627A71FAD0066D224 /* SceneDelegate.swift */,
 				8470738827A71FAD0066D224 /* ViewController.swift */,
 				B5BC376127A8661C00FA6024 /* TextViewController.swift */,
-				B5C113D527A919BE00BB3632 /* GesturePolitics.swift */,
-				B5C113D327A9110B00BB3632 /* CustomCell.swift */,
 				8470739827A71FFF0066D224 /* Assembly.swift */,
 				8470738D27A71FAF0066D224 /* Assets.xcassets */,
 				8470738F27A71FAF0066D224 /* LaunchScreen.storyboard */,
@@ -148,8 +142,6 @@
 			files = (
 				B5BC376227A8661C00FA6024 /* TextViewController.swift in Sources */,
 				8470738927A71FAD0066D224 /* ViewController.swift in Sources */,
-				B5C113D427A9110B00BB3632 /* CustomCell.swift in Sources */,
-				B5C113D627A919BE00BB3632 /* GesturePolitics.swift in Sources */,
 				8470739927A71FFF0066D224 /* Assembly.swift in Sources */,
 				8470738527A71FAD0066D224 /* AppDelegate.swift in Sources */,
 				8470738727A71FAD0066D224 /* SceneDelegate.swift in Sources */,
