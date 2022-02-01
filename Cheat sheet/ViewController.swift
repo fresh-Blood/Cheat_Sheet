@@ -49,6 +49,7 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
         request.recognitionLevel = .accurate
         request.usesLanguageCorrection = true
         request.usesCPUOnly = false
+        request.regionOfInterest = CGRect(x: 0, y: 0, width: 1, height: 1)
         return request
     }()
     
@@ -141,6 +142,28 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
         visionTextRecognitionRequest = VNRecognizeTextRequest { [weak self] request, error in
             guard
                 let observations = request.results as? [VNRecognizedTextObservation] else { return }
+            
+            for observation in observations {
+                DispatchQueue.main.async { [weak self] in
+                    let box = observation.boundingBox
+                    
+                    let normalizedCoordinates = VNNormalizedIdentityRect
+//                    print(normalizedCoordinates)
+                    
+                    let boxLayer = CAShapeLayer()
+                    let path = UIBezierPath(rect: VNNormalizedRectForImageRect(box,
+                                                                               Int(self?.previewLayer.frame.width ?? 0),
+                                                                               Int(self?.previewLayer.frame.height ?? 0)))
+
+                    
+                    boxLayer.path = path.cgPath
+                    boxLayer.strokeColor = UIColor.systemGreen.cgColor
+                    boxLayer.fillColor = UIColor.systemGreen.withAlphaComponent(0.3).cgColor
+                    boxLayer.lineWidth = 1
+                    boxLayer.bounds = box
+                    self?.previewLayer.addSublayer(boxLayer)
+                }
+            }
             
             self?.observationText = observations.compactMap({
                 $0.topCandidates(1).first?.string
