@@ -8,6 +8,9 @@ protocol UserView {
 
 final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutputSampleBufferDelegate {
     
+    // Vision -> AVF coordinate transform.
+    var visionToAVFTransform = CGAffineTransform.identity
+    
     var previewLayer = AVCaptureVideoPreviewLayer()
     var captureSession = AVCaptureSession()
     var observationText = "" {
@@ -139,29 +142,15 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
     
     private func createObjectDetectionVisionRequest() -> VNRequest? {
         
+        var boxes = [CGRect]() // Shows all recognized text lines
         visionTextRecognitionRequest = VNRecognizeTextRequest { [weak self] request, error in
             guard
                 let observations = request.results as? [VNRecognizedTextObservation] else { return }
             
             for observation in observations {
-                DispatchQueue.main.async { [weak self] in
+                DispatchQueue.main.async {
                     let box = observation.boundingBox
-                    
-                    let normalizedCoordinates = VNNormalizedIdentityRect
-//                    print(normalizedCoordinates)
-                    
-                    let boxLayer = CAShapeLayer()
-                    let path = UIBezierPath(rect: VNNormalizedRectForImageRect(box,
-                                                                               Int(self?.previewLayer.frame.width ?? 0),
-                                                                               Int(self?.previewLayer.frame.height ?? 0)))
-
-                    
-                    boxLayer.path = path.cgPath
-                    boxLayer.strokeColor = UIColor.systemGreen.cgColor
-                    boxLayer.fillColor = UIColor.systemGreen.withAlphaComponent(0.3).cgColor
-                    boxLayer.lineWidth = 1
-                    boxLayer.bounds = box
-                    self?.previewLayer.addSublayer(boxLayer)
+                    boxes.append(box)
                 }
             }
             
@@ -182,7 +171,7 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
             if self?.counter == 20 {
                 self?.presentTextVC()
             }
-            
+            self?.show(boxGroups: [(color: UIColor.systemGreen.cgColor, boxes: boxes)])
         }
         return visionTextRecognitionRequest
     }
@@ -217,3 +206,38 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
     }
 }
 
+extension ViewController {
+    // MARK: - Bounding box drawing
+    
+    // Draw a box on screen. Must be called from main queue.
+    
+    func draw(rect: CGRect, color: CGColor) {
+        let layer = CAShapeLayer()
+        layer.opacity = 1
+        layer.borderColor = color
+        layer.borderWidth = 2
+        layer.frame = rect
+        previewLayer.insertSublayer(layer, at: 1)
+        guard
+            let sublayers = previewLayer.sublayers else { return }
+        if sublayers.count > 2 {
+            previewLayer.sublayers?.removeLast()
+        }
+    }
+    
+    typealias ColoredBoxGroup = (color: CGColor, boxes: [CGRect])
+    
+    // Draws groups of colored boxes.
+    func show(boxGroups: [ColoredBoxGroup]) {
+        DispatchQueue.main.async {
+            let layer = self.previewLayer
+            for boxGroup in boxGroups {
+                let color = boxGroup.color
+                for box in boxGroup.boxes {
+                    let rect = layer.layerRectConverted(fromMetadataOutputRect: box.applying(self.visionToAVFTransform))
+                    self.draw(rect: rect, color: color)
+                }
+            }
+        }
+    }
+}
