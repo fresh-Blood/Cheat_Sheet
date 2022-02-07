@@ -75,6 +75,11 @@ final class TextViewController: UIViewController, UserText, UITextViewDelegate {
         recognizeCheckAndCorrectLanguage()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        textToTranslate.selectAll(self)
+    }
+    
     private func setTextViewConstraints() {
         NSLayoutConstraint.activate([
             textToTranslate.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
