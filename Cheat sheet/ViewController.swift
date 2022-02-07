@@ -233,7 +233,7 @@ extension ViewController {
         let layer = CAShapeLayer()
         layer.opacity = 1
         layer.borderColor = color
-        layer.borderWidth = 2
+        layer.borderWidth = 1
         layer.frame = rect
         layer.fillColor = color 
         layer.setAffineTransform(CGAffineTransform(rotationAngle: CGFloat(.pi / 2.0)))
