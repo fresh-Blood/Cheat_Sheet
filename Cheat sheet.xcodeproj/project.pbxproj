@@ -13,6 +13,7 @@
 		8470738E27A71FAF0066D224 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8470738D27A71FAF0066D224 /* Assets.xcassets */; };
 		8470739127A71FAF0066D224 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8470738F27A71FAF0066D224 /* LaunchScreen.storyboard */; };
 		8470739927A71FFF0066D224 /* Assembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8470739827A71FFF0066D224 /* Assembly.swift */; };
+		B59F633727AFDDFF00500992 /* gesturePolitics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59F633627AFDDFF00500992 /* gesturePolitics.swift */; };
 		B5BC376227A8661C00FA6024 /* TextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BC376127A8661C00FA6024 /* TextViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -25,6 +26,7 @@
 		8470739027A71FAF0066D224 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8470739227A71FAF0066D224 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8470739827A71FFF0066D224 /* Assembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assembly.swift; sourceTree = "<group>"; };
+		B59F633627AFDDFF00500992 /* gesturePolitics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = gesturePolitics.swift; sourceTree = "<group>"; };
 		B5BC376127A8661C00FA6024 /* TextViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -61,6 +63,7 @@
 				8470738427A71FAD0066D224 /* AppDelegate.swift */,
 				8470738627A71FAD0066D224 /* SceneDelegate.swift */,
 				8470738827A71FAD0066D224 /* ViewController.swift */,
+				B59F633627AFDDFF00500992 /* gesturePolitics.swift */,
 				B5BC376127A8661C00FA6024 /* TextViewController.swift */,
 				8470739827A71FFF0066D224 /* Assembly.swift */,
 				8470738D27A71FAF0066D224 /* Assets.xcassets */,
@@ -141,6 +144,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5BC376227A8661C00FA6024 /* TextViewController.swift in Sources */,
+				B59F633727AFDDFF00500992 /* gesturePolitics.swift in Sources */,
 				8470738927A71FAD0066D224 /* ViewController.swift in Sources */,
 				8470739927A71FFF0066D224 /* Assembly.swift in Sources */,
 				8470738527A71FAD0066D224 /* AppDelegate.swift in Sources */,

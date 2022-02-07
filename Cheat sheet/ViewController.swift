@@ -25,6 +25,14 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
             }
         }
     }
+    
+    var boxes = [CGRect]() // Shows all recognized text lines {
+    {
+        didSet {
+            self.show(boxGroups: [(color: UIColor.systemGreen.cgColor, boxes: boxes)])
+        }
+    }
+    
     var visionRequests = [VNRequest]()
     var counter = 0 {
         didSet {
@@ -52,7 +60,6 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
         request.recognitionLevel = .accurate
         request.usesLanguageCorrection = true
         request.usesCPUOnly = false
-        request.regionOfInterest = CGRect(x: 0, y: 0, width: 1, height: 1)
         return request
     }()
     
@@ -63,13 +70,25 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
         return loading
     }()
     
+    let recognizeButton: UIButton = {
+        let btn = UIButton()
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.setTitle("Recognize!", for: .normal)
+        btn.layer.cornerRadius = 8
+        btn.backgroundColor = .random()
+        btn.setTitleColor(.black, for: .normal)
+        return btn
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        setButtonGesturePolitics()
         configurateNavBar()
         view.backgroundColor = .random()
-        startCaptureSession(createObjectDetectionVisionRequest())
+        startCaptureSession()
         view.addSubview(loadingIndicator)
         view.addSubview(scoreLabel)
+        view.addSubview(recognizeButton)
     }
     private func configurateNavBar() {
         navigationItem.title = "Focus on text,don't move ಠ_ಠ"
@@ -78,7 +97,7 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
         navigationController?.navigationBar.largeTitleTextAttributes = [
             .font: UIFont.systemFont(ofSize: 25,
                                      weight: .bold),
-            .foregroundColor: UIColor.label
+            .foregroundColor: UIColor.white 
         ]
         navigationController?.navigationBar.backgroundColor = .clear
         navigationController?.navigationBar.tintColor = .white
@@ -107,7 +126,7 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
         }
     }
     
-    private func startCaptureSession(_ visionRequest: VNRequest?) {
+    private func startCaptureSession() {
         
         captureSession.sessionPreset = .photo
         guard
@@ -133,16 +152,10 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
         dataOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "queue"))
         captureSession.addOutput(dataOutput)
         captureSession.commitConfiguration()
-        if visionRequest != nil {
-            self.visionRequests = [visionRequest!]
-        } else {
-            self.visionRequests = []
-        }
     }
     
-    private func createObjectDetectionVisionRequest() -> VNRequest? {
+    func createObjectDetectionVisionRequest() {
         
-        var boxes = [CGRect]() // Shows all recognized text lines
         visionTextRecognitionRequest = VNRecognizeTextRequest { [weak self] request, error in
             guard
                 let observations = request.results as? [VNRecognizedTextObservation] else { return }
@@ -150,7 +163,7 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
             for observation in observations {
                 DispatchQueue.main.async {
                     let box = observation.boundingBox
-                    boxes.append(box)
+                    self?.boxes.append(box)
                 }
             }
             
@@ -158,22 +171,13 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
                 $0.topCandidates(1).first?.string
             }).joined(separator: " ")
             
-            guard
-                let unwrappedRequests = self?.visionRequests else { return }
-            
-            if unwrappedRequests.isEmpty {
-                self?.visionRequests.append(request)
-            } else {
-                self?.visionRequests.removeAll()
-                self?.visionRequests.append(request)
-            }
             
             if self?.counter == 20 {
                 self?.presentTextVC()
             }
-            self?.show(boxGroups: [(color: UIColor.systemGreen.cgColor, boxes: boxes)])
         }
-        return visionTextRecognitionRequest
+        visionTextRecognitionRequest.regionOfInterest = previewLayer.metadataOutputRectConverted(fromLayerRect: previewLayer.bounds)
+        visionRequests.append(visionTextRecognitionRequest)
     }
     
     func presentTextVC() {
@@ -183,6 +187,7 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
             textVC.textToTranslate.text = self?.observationText
             self?.navigationController?.pushViewController(textVC, animated: true)
             self?.counter = 0
+            self?.visionRequests.removeAll()
         }
     }
     
@@ -192,6 +197,13 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
             self?.counter = 0
             self?.captureSession.startRunning()
             self?.loadingIndicator.stopAnimating()
+            
+            guard
+                let sublayers = self?.previewLayer.sublayers else { return }
+            
+            for sublayer in sublayers where sublayer != sublayers[0] {
+                sublayer.removeFromSuperlayer()
+            }
         }
     }
     
@@ -203,6 +215,12 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
                                   y: view.bounds.height - inset*2 - view.safeAreaInsets.bottom,
                                   width: view.bounds.width - inset*2,
                                   height: inset*2)
+        NSLayoutConstraint.activate([
+            recognizeButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            recognizeButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            recognizeButton.widthAnchor.constraint(equalToConstant: 150),
+            recognizeButton.heightAnchor.constraint(equalToConstant: 70)
+        ])
     }
 }
 
@@ -217,6 +235,9 @@ extension ViewController {
         layer.borderColor = color
         layer.borderWidth = 2
         layer.frame = rect
+        layer.fillColor = color 
+        layer.setAffineTransform(CGAffineTransform(rotationAngle: CGFloat(.pi / 2.0)))
+
         previewLayer.insertSublayer(layer, at: 1)
         guard
             let sublayers = previewLayer.sublayers else { return }
