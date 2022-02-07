@@ -11,7 +11,15 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
     // Vision -> AVF coordinate transform.
     var visionToAVFTransform = CGAffineTransform.identity
     
-    var previewLayer = AVCaptureVideoPreviewLayer()
+    var previewLayer: AVCaptureVideoPreviewLayer = {
+       let layer = AVCaptureVideoPreviewLayer()
+        layer.cornerRadius = 8
+        layer.borderColor = UIColor.black.cgColor
+        layer.borderWidth = 2.0
+        layer.masksToBounds = true
+        layer.backgroundColor  = UIColor.gray.cgColor
+        return layer
+    }()
     var captureSession = AVCaptureSession()
     var observationText = "" {
         didSet {
@@ -51,6 +59,7 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
         lbl.backgroundColor = .clear
         lbl.textColor = .white.withAlphaComponent(0.5)
         lbl.textAlignment = .center
+        lbl.translatesAutoresizingMaskIntoConstraints = false
         return lbl
     }()
     
@@ -74,6 +83,7 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.setTitle("Recognize!", for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 20, weight: .heavy)
         btn.layer.cornerRadius = 8
         btn.backgroundColor = .random()
         btn.setTitleColor(.black, for: .normal)
@@ -89,6 +99,7 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
         view.addSubview(loadingIndicator)
         view.addSubview(scoreLabel)
         view.addSubview(recognizeButton)
+        view.layer.addSublayer(previewLayer) // test
     }
     private func configurateNavBar() {
         navigationItem.title = "Focus on text,don't move ಠ_ಠ"
@@ -141,10 +152,10 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
         previewLayer.frame = CGRect(x: view.safeAreaInsets.left + 20,
                                     y: view.safeAreaInsets.top + 20,
                                     width: view.bounds.width - 40,
-                                    height: 300)
-        previewLayer.cornerRadius = 8
-        previewLayer.borderColor = UIColor.black.cgColor
-        previewLayer.borderWidth = 1.0
+                                    height: view.bounds.height/2 - 75)
+//        previewLayer.cornerRadius = 8
+//        previewLayer.borderColor = UIColor.black.cgColor
+//        previewLayer.borderWidth = 1.0
         view.layer.addSublayer(previewLayer)
         
         let dataOutput = AVCaptureVideoDataOutput()
@@ -210,16 +221,16 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         loadingIndicator.center = view.center
-        let inset: CGFloat = 50
-        scoreLabel.frame = CGRect(x: view.safeAreaInsets.left + inset,
-                                  y: view.bounds.height - inset*2 - view.safeAreaInsets.bottom,
-                                  width: view.bounds.width - inset*2,
-                                  height: inset*2)
         NSLayoutConstraint.activate([
             recognizeButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             recognizeButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             recognizeButton.widthAnchor.constraint(equalToConstant: 150),
-            recognizeButton.heightAnchor.constraint(equalToConstant: 70)
+            recognizeButton.heightAnchor.constraint(equalToConstant: 70),
+            
+            scoreLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            scoreLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
+            scoreLabel.widthAnchor.constraint(equalToConstant: 150),
+            scoreLabel.heightAnchor.constraint(equalToConstant: 100)
         ])
     }
 }
