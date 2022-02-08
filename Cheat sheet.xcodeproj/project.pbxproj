@@ -13,7 +13,9 @@
 		8470738E27A71FAF0066D224 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8470738D27A71FAF0066D224 /* Assets.xcassets */; };
 		8470739127A71FAF0066D224 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8470738F27A71FAF0066D224 /* LaunchScreen.storyboard */; };
 		8470739927A71FFF0066D224 /* Assembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8470739827A71FFF0066D224 /* Assembly.swift */; };
-		B59F633727AFDDFF00500992 /* gesturePolitics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59F633627AFDDFF00500992 /* gesturePolitics.swift */; };
+		84FE99F627B2F58D00BD8B66 /* ConfigureCaptureSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FE99F527B2F58D00BD8B66 /* ConfigureCaptureSession.swift */; };
+		84FE99F827B2F5D300BD8B66 /* BoundingBoxesSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FE99F727B2F5D300BD8B66 /* BoundingBoxesSetting.swift */; };
+		B59F633727AFDDFF00500992 /* GesturePolitics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59F633627AFDDFF00500992 /* GesturePolitics.swift */; };
 		B5BC376227A8661C00FA6024 /* TextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BC376127A8661C00FA6024 /* TextViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -26,7 +28,9 @@
 		8470739027A71FAF0066D224 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8470739227A71FAF0066D224 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8470739827A71FFF0066D224 /* Assembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assembly.swift; sourceTree = "<group>"; };
-		B59F633627AFDDFF00500992 /* gesturePolitics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = gesturePolitics.swift; sourceTree = "<group>"; };
+		84FE99F527B2F58D00BD8B66 /* ConfigureCaptureSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigureCaptureSession.swift; sourceTree = "<group>"; };
+		84FE99F727B2F5D300BD8B66 /* BoundingBoxesSetting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoundingBoxesSetting.swift; sourceTree = "<group>"; };
+		B59F633627AFDDFF00500992 /* GesturePolitics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GesturePolitics.swift; sourceTree = "<group>"; };
 		B5BC376127A8661C00FA6024 /* TextViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -60,17 +64,43 @@
 		8470738327A71FAD0066D224 /* Cheat sheet */ = {
 			isa = PBXGroup;
 			children = (
-				8470738427A71FAD0066D224 /* AppDelegate.swift */,
-				8470738627A71FAD0066D224 /* SceneDelegate.swift */,
-				8470738827A71FAD0066D224 /* ViewController.swift */,
-				B59F633627AFDDFF00500992 /* gesturePolitics.swift */,
-				B5BC376127A8661C00FA6024 /* TextViewController.swift */,
-				8470739827A71FFF0066D224 /* Assembly.swift */,
+				84FE99F927B2F61400BD8B66 /* SupportingFiles */,
+				84FE99FA27B2F62200BD8B66 /* View */,
+				84FE99FB27B2F62C00BD8B66 /* Assembly */,
 				8470738D27A71FAF0066D224 /* Assets.xcassets */,
 				8470738F27A71FAF0066D224 /* LaunchScreen.storyboard */,
 				8470739227A71FAF0066D224 /* Info.plist */,
 			);
 			path = "Cheat sheet";
+			sourceTree = "<group>";
+		};
+		84FE99F927B2F61400BD8B66 /* SupportingFiles */ = {
+			isa = PBXGroup;
+			children = (
+				8470738427A71FAD0066D224 /* AppDelegate.swift */,
+				8470738627A71FAD0066D224 /* SceneDelegate.swift */,
+			);
+			path = SupportingFiles;
+			sourceTree = "<group>";
+		};
+		84FE99FA27B2F62200BD8B66 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				8470738827A71FAD0066D224 /* ViewController.swift */,
+				84FE99F727B2F5D300BD8B66 /* BoundingBoxesSetting.swift */,
+				84FE99F527B2F58D00BD8B66 /* ConfigureCaptureSession.swift */,
+				B59F633627AFDDFF00500992 /* GesturePolitics.swift */,
+				B5BC376127A8661C00FA6024 /* TextViewController.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		84FE99FB27B2F62C00BD8B66 /* Assembly */ = {
+			isa = PBXGroup;
+			children = (
+				8470739827A71FFF0066D224 /* Assembly.swift */,
+			);
+			path = Assembly;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -144,7 +174,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5BC376227A8661C00FA6024 /* TextViewController.swift in Sources */,
-				B59F633727AFDDFF00500992 /* gesturePolitics.swift in Sources */,
+				B59F633727AFDDFF00500992 /* GesturePolitics.swift in Sources */,
+				84FE99F827B2F5D300BD8B66 /* BoundingBoxesSetting.swift in Sources */,
+				84FE99F627B2F58D00BD8B66 /* ConfigureCaptureSession.swift in Sources */,
 				8470738927A71FAD0066D224 /* ViewController.swift in Sources */,
 				8470739927A71FFF0066D224 /* Assembly.swift in Sources */,
 				8470738527A71FAD0066D224 /* AppDelegate.swift in Sources */,
