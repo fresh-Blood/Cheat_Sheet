@@ -13,11 +13,6 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
     
     var previewLayer: AVCaptureVideoPreviewLayer = {
        let layer = AVCaptureVideoPreviewLayer()
-        layer.cornerRadius = 8
-        layer.borderColor = UIColor.black.cgColor
-        layer.borderWidth = 2.0
-        layer.masksToBounds = true
-        layer.backgroundColor  = UIColor.gray.cgColor
         return layer
     }()
     var captureSession = AVCaptureSession()
@@ -152,10 +147,12 @@ final class ViewController: UIViewController, UserView, AVCaptureVideoDataOutput
         previewLayer.frame = CGRect(x: view.safeAreaInsets.left + 20,
                                     y: view.safeAreaInsets.top + 20,
                                     width: view.bounds.width - 40,
-                                    height: view.bounds.height/2 - 75)
-//        previewLayer.cornerRadius = 8
-//        previewLayer.borderColor = UIColor.black.cgColor
-//        previewLayer.borderWidth = 1.0
+                                    height: view.bounds.height/2 - 150)
+
+        previewLayer.cornerRadius = 8
+        previewLayer.borderColor = UIColor.black.cgColor
+        previewLayer.borderWidth = 2.0
+        previewLayer.masksToBounds = true
         view.layer.addSublayer(previewLayer)
         
         let dataOutput = AVCaptureVideoDataOutput()
